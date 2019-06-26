@@ -15,13 +15,13 @@ use crate::config::*;
 use crate::preprocess::*;
 use crate::binarize;
 
-struct PBOHeader {
-    filename: String,
-    packing_method: u32,
-    original_size: u32,
-    reserved: u32,
-    timestamp: u32,
-    data_size: u32
+pub struct PBOHeader {
+    pub filename: String,
+    pub packing_method: u32,
+    pub original_size: u32,
+    pub reserved: u32,
+    pub timestamp: u32,
+    pub data_size: u32
 }
 
 /// PBO file
@@ -43,7 +43,7 @@ struct PBOHeader {
 pub struct PBO {
     pub files: LinkedHashMap<String, Cursor<Box<[u8]>>>,
     pub header_extensions: HashMap<String, String>,
-    headers: Vec<PBOHeader>,
+    pub headers: Vec<PBOHeader>,
     /// only defined when reading existing PBOs, for created PBOs this is calculated during writing
     /// and included in the output
     pub checksum: Option<Vec<u8>>
