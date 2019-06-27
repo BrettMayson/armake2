@@ -15,7 +15,7 @@ use crate::*;
 use crate::error::*;
 
 #[cfg(windows)]
-fn find_binarize_exe() -> Result<PathBuf, Error> {
+pub fn find_binarize_exe() -> Result<PathBuf, Error> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let binarize = hkcu.open_subkey("Software\\Bohemia Interactive\\binarize")?;
     let value: String = binarize.get_value("path")?;
@@ -24,7 +24,7 @@ fn find_binarize_exe() -> Result<PathBuf, Error> {
 }
 
 #[cfg(unix)]
-fn find_binarize_exe() -> Result<PathBuf, Error> {
+pub fn find_binarize_exe() -> Result<PathBuf, Error> {
     unreachable!();
 }
 
