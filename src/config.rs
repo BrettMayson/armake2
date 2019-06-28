@@ -486,8 +486,8 @@ impl Config {
 
         let (preprocessed, info) = preprocess(buffer, path, includefolders, |path| {
             let mut content = String::new();
-            std::fs::File::open(path).unwrap().read_to_string(&mut content).unwrap();
-            content
+            std::fs::File::open(path)?.read_to_string(&mut content)?;
+            Ok(content)
         }).prepend_error("Failed to preprocess config:")?;
 
         let mut warnings: Vec<(usize, String, Option<&'static str>)> = Vec::new();

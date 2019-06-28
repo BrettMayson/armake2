@@ -120,7 +120,7 @@ impl Clone for Token {
 }
 
 impl Definition {
-    fn value(&self, arguments: &Option<Vec<String>>, def_map: &HashMap<String,Definition>, stack: &Vec<Definition>) -> Result<Option<Vec<Token>>, Error> {
+    fn value(&self, arguments: &Option<Vec<String>>, def_map: &HashMap<String, Definition>, stack: &Vec<Definition>) -> Result<Option<Vec<Token>>, Error> {
         let params = self.parameters.clone().unwrap_or(Vec::new());
         let args = arguments.clone().unwrap_or(Vec::new());
 
@@ -388,7 +388,7 @@ fn find_include_file(include_path: &String, origin: Option<&PathBuf>, search_pat
 }
 
 fn preprocess_rec<F>(input: String, origin: Option<PathBuf>, definition_map: &mut HashMap<String, Definition>, info: &mut PreprocessInfo, includefolders: &Vec<PathBuf>, fileread: F) -> Result<String, Error> where
-    F: Fn(&PathBuf) -> String,
+    F: Fn(&PathBuf) -> Result<String, Error>,
     F: Copy
 {
     let lines = preprocess_grammar::file(&input).format_error(&origin, &input)?;
@@ -412,7 +412,7 @@ fn preprocess_rec<F>(input: String, origin: Option<PathBuf>, definition_map: &mu
                     let file_path = find_include_file(&path, origin.as_ref(), includefolders)?;
 
                     info.import_stack.push(file_path.clone());
-                    let content = fileread(&file_path);
+                    let content = fileread(&file_path)?;
                     let result = preprocess_rec(content, Some(file_path), definition_map, info, includefolders, fileread).prepend_error(format!("Failed to preprocess include \"{}\":", path))?;
 
                     info.import_stack.pop();
@@ -511,7 +511,7 @@ fn preprocess_rec<F>(input: String, origin: Option<PathBuf>, definition_map: &mu
 /// assert_eq!("foo = \"abc_xyz\";", output.trim());
 /// ```
 pub fn preprocess<F>(mut input: String, origin: Option<PathBuf>, includefolders: &Vec<PathBuf>, fileread: F) -> Result<(String, PreprocessInfo), Error> where
-    F: Fn(&PathBuf) -> String,
+    F: Fn(&PathBuf) -> Result<String, Error>,
     F: Copy
 {
     if input[..3].as_bytes() == &[0xef,0xbb,0xbf] {
@@ -546,8 +546,8 @@ pub fn cmd_preprocess<I: Read, O: Write>(input: &mut I, output: &mut O, path: Op
 
     let (result, _) = preprocess(buffer, path, includefolders, |path| {
         let mut content = String::new();
-        File::open(path).unwrap().read_to_string(&mut content).unwrap();
-        content
+        File::open(path)?.read_to_string(&mut content)?;
+        Ok(content)
     })?;
 
     output.write_all(result.as_bytes()).prepend_error("Failed to write output")?;
