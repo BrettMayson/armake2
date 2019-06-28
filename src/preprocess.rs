@@ -510,7 +510,10 @@ fn preprocess_rec<F>(input: String, origin: Option<PathBuf>, definition_map: &mu
 ///
 /// assert_eq!("foo = \"abc_xyz\";", output.trim());
 /// ```
-pub fn preprocess(mut input: String, origin: Option<PathBuf>, includefolders: &Vec<PathBuf>) -> Result<(String, PreprocessInfo), Error> {
+pub fn preprocess<F>(mut input: String, origin: Option<PathBuf>, includefolders: &Vec<PathBuf>, fileread: F) -> Result<(String, PreprocessInfo), Error> where
+    F: Fn(&PathBuf) -> String,
+    F: Copy
+{
     if input[..3].as_bytes() == &[0xef,0xbb,0xbf] {
         input = input[3..].to_string();
     }
@@ -526,11 +529,7 @@ pub fn preprocess(mut input: String, origin: Option<PathBuf>, includefolders: &V
 
     let mut def_map: HashMap<String, Definition> = HashMap::new();
 
-    match preprocess_rec(input, origin, &mut def_map, &mut info, includefolders, |path| {
-        let mut content = String::new();
-        File::open(path).unwrap().read_to_string(&mut content).unwrap();
-        content
-    }) {
+    match preprocess_rec(input, origin, &mut def_map, &mut info, includefolders, fileread) {
         Ok(result) => Ok((result, info)),
         Err(e) => Err(e)
     }
@@ -545,7 +544,11 @@ pub fn cmd_preprocess<I: Read, O: Write>(input: &mut I, output: &mut O, path: Op
     let mut buffer = String::new();
     input.read_to_string(&mut buffer).prepend_error("Failed to read input file")?;
 
-    let (result, _) = preprocess(buffer, path, includefolders)?;
+    let (result, _) = preprocess(buffer, path, includefolders, |path| {
+        let mut content = String::new();
+        File::open(path).unwrap().read_to_string(&mut content).unwrap();
+        content
+    })?;
 
     output.write_all(result.as_bytes()).prepend_error("Failed to write output")?;
 

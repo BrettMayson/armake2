@@ -1,4 +1,4 @@
-use std::io::{Write};
+use std::io::{Write, Read};
 use std::fs::{File, create_dir};
 use std::path::{PathBuf};
 
@@ -27,7 +27,11 @@ class CfgPatches {
     };
 };");
 
-    let (output, _) = preprocess(input, None, &Vec::new()).unwrap();
+    let (output, _) = preprocess(input, None, &Vec::new(), |path| {
+        let mut content = String::new();
+        File::open(path).unwrap().read_to_string(&mut content).unwrap();
+        content
+    }).unwrap();
 
     assert_eq!("\
 class CfgPatches {
@@ -60,7 +64,11 @@ fn test_preprocess_ifdef() {
 #endif
 ");
 
-    let (output, _) = preprocess(input, None, &Vec::new()).unwrap();
+    let (output, _) = preprocess(input, None, &Vec::new(), |path| {
+        let mut content = String::new();
+        File::open(path).unwrap().read_to_string(&mut content).unwrap();
+        content
+    }).unwrap();
 
     assert_eq!("abc = 1234;", output.trim());
 }
@@ -89,7 +97,11 @@ bar_foo\n");
     let includepath = PathBuf::from(addondir.join("include.h")).canonicalize().unwrap();
 
     let includefolders = vec![PathBuf::from(includedir.path())];
-    let (output, info) = preprocess(input, Some(PathBuf::from("myfile")), &includefolders).unwrap();
+    let (output, info) = preprocess(input, Some(PathBuf::from("myfile")), &includefolders, |path| {
+        let mut content = String::new();
+        File::open(path).unwrap().read_to_string(&mut content).unwrap();
+        content
+    }).unwrap();
 
     assert_eq!("bar_foo\n\nfoo_bar", output.trim());
     assert_eq!((2, Some(includepath)), info.line_origins[0]);
@@ -99,7 +111,11 @@ bar_foo\n");
 #[test]
 fn test_preprocess_bom() {
     let input = String::from_utf8(vec![0xef,0xbb,0xbf]).unwrap() + "blub";
-    let (output, _) = preprocess(input, None, &Vec::new()).unwrap();
+    let (output, _) = preprocess(input, None, &Vec::new(), |path| {
+        let mut content = String::new();
+        File::open(path).unwrap().read_to_string(&mut content).unwrap();
+        content
+    }).unwrap();
 
     assert_eq!("blub", output.trim());
 }
