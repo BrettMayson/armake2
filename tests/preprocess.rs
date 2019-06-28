@@ -97,7 +97,7 @@ bar_foo\n");
 }
 
 #[test]
-fn test_proprocess_bom() {
+fn test_preprocess_bom() {
     let input = String::from_utf8(vec![0xef,0xbb,0xbf]).unwrap() + "blub";
     let (output, _) = preprocess(input, None, &Vec::new()).unwrap();
 

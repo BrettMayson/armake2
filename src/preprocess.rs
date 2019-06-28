@@ -387,7 +387,10 @@ fn find_include_file(include_path: &String, origin: Option<&PathBuf>, search_pat
     }
 }
 
-fn preprocess_rec(input: String, origin: Option<PathBuf>, definition_map: &mut HashMap<String, Definition>, info: &mut PreprocessInfo, includefolders: &Vec<PathBuf>) -> Result<String, Error> {
+fn preprocess_rec<F>(input: String, origin: Option<PathBuf>, definition_map: &mut HashMap<String, Definition>, info: &mut PreprocessInfo, includefolders: &Vec<PathBuf>, fileread: F) -> Result<String, Error> where
+    F: Fn(&PathBuf) -> String,
+    F: Copy
+{
     let lines = preprocess_grammar::file(&input).format_error(&origin, &input)?;
     let mut output = String::from("");
     let mut original_lineno = 1;
@@ -409,10 +412,8 @@ fn preprocess_rec(input: String, origin: Option<PathBuf>, definition_map: &mut H
                     let file_path = find_include_file(&path, origin.as_ref(), includefolders)?;
 
                     info.import_stack.push(file_path.clone());
-
-                    let mut content = String::new();
-                    File::open(&file_path)?.read_to_string(&mut content)?;
-                    let result = preprocess_rec(content, Some(file_path), definition_map, info, includefolders).prepend_error(format!("Failed to preprocess include \"{}\":", path))?;
+                    let content = fileread(&file_path);
+                    let result = preprocess_rec(content, Some(file_path), definition_map, info, includefolders, fileread).prepend_error(format!("Failed to preprocess include \"{}\":", path))?;
 
                     info.import_stack.pop();
 
@@ -525,7 +526,11 @@ pub fn preprocess(mut input: String, origin: Option<PathBuf>, includefolders: &V
 
     let mut def_map: HashMap<String, Definition> = HashMap::new();
 
-    match preprocess_rec(input, origin, &mut def_map, &mut info, includefolders) {
+    match preprocess_rec(input, origin, &mut def_map, &mut info, includefolders, |path| {
+        let mut content = String::new();
+        File::open(path).unwrap().read_to_string(&mut content).unwrap();
+        content
+    }) {
         Ok(result) => Ok((result, info)),
         Err(e) => Err(e)
     }
