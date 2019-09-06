@@ -14,6 +14,7 @@ use winreg::enums::*;
 use crate::*;
 use crate::error::*;
 
+/// Returns the path of BI's binarize program (64 bits)
 #[cfg(windows)]
 pub fn find_binarize_exe() -> Result<PathBuf, Error> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);

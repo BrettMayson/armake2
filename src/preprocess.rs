@@ -306,6 +306,7 @@ fn matches_include_path(path: &PathBuf, include_path: &String) -> bool {
     false
 }
 
+/// Searches for a `#include` filed inside the specified directory
 fn search_directory(include_path: &String, directory: PathBuf) -> Option<PathBuf> {
     for entry in read_dir(&directory).unwrap() {
         let path = entry.unwrap().path();
