@@ -37,6 +37,8 @@ pub enum Directive {
     IfDefDirective(String),
     /// `#ifndef` directive containing the name of the macro
     IfNDefDirective(String),
+    /// `#if` directive containing the name of the macro
+    IfDirective(String),
     /// `#else` directive
     ElseDirective,
     /// `#endif` directive
@@ -390,6 +392,23 @@ where
                     }
                     Directive::IfDefDirective(name) => {
                         level_true += if level_true == level && definition_map.contains_key(&name) {
+                            1
+                        } else {
+                            0
+                        };
+                        level += 1;
+                    }
+                    Directive::IfDirective(name) => {
+                        let temp_macro = Macro {
+                            name: name.clone(),
+                            arguments: None,
+                            original: name.clone(),
+                            quoted: false,
+                        };
+                        let stack: Vec<Definition> = Vec::new();
+                        let resolved_macro = Token::concat(&Macro::resolve(&temp_macro, &definition_map, &stack).unwrap());
+
+                        level_true += if level_true == level && resolved_macro.0 == "1" && resolved_macro.1 == 0 {
                             1
                         } else {
                             0

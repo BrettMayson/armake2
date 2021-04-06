@@ -34,6 +34,7 @@ directive -> Directive =
     "#" [ \t]* "undef" [ \t]+ n:name { Directive::UndefDirective(n) } /
     "#" [ \t]* "ifdef" [ \t]+ n:name { Directive::IfDefDirective(n) } /
     "#" [ \t]* "ifndef" [ \t]+ n:name { Directive::IfNDefDirective(n) } /
+    "#" [ \t]* "if" [ \t]+ n:name { Directive::IfDirective(n) } /
     "#" [ \t]* "else" { Directive::ElseDirective } /
     "#" [ \t]* "endif" { Directive::EndIfDirective }
 

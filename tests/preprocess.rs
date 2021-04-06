@@ -89,6 +89,37 @@ fn test_preprocess_ifdef() {
 }
 
 #[test]
+fn test_preprocess_if() {
+    let input = String::from(
+        "\
+#define foo 1
+#define foobar 0
+
+#if foo
+    #if foobar
+        def = 5678;
+    #endif
+    abc = 1234;
+#else
+    abc = 4321;
+#endif
+",
+    );
+
+    let (output, _) = preprocess(input, None, &Vec::new(), |path| {
+        let mut content = String::new();
+        File::open(path)
+            .unwrap()
+            .read_to_string(&mut content)
+            .unwrap();
+        content
+    })
+    .unwrap();
+
+    assert_eq!("abc = 1234;", output.trim());
+}
+
+#[test]
 fn test_preprocess_include() {
     let input = String::from(
         "\
