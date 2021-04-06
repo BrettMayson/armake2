@@ -405,8 +405,7 @@ where
                             original: name.clone(),
                             quoted: false,
                         };
-                        let stack: Vec<Definition> = Vec::new();
-                        let resolved_macro = Token::concat(&Macro::resolve(&temp_macro, &definition_map, &stack).unwrap());
+                        let resolved_macro = Token::concat(&Macro::resolve(&temp_macro, &definition_map, &Vec::new()).unwrap());
 
                         level_true += if level_true == level && resolved_macro.0 == "1" && resolved_macro.1 == 0 {
                             1
