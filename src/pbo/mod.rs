@@ -116,7 +116,7 @@ impl PBO {
 
             let mut file = File::open(&path)?;
 
-            if name == "$PBOPREFIX$" {
+            if name == "$PBOPREFIX$" || name == "$PboPrefix$.txt" {
                 let mut content = String::new();
                 file.read_to_string(&mut content)?;
                 for l in content.lines() {

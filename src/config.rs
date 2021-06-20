@@ -18,23 +18,23 @@ pub mod config_grammar {
     include!(concat!(env!("OUT_DIR"), "/config_grammar.rs"));
 }
 
-/// Config
-///
-/// # Examples
-///
-/// ```
-/// # use armake2::Config;
-/// let input = String::from("
-/// #define bar 42
-///
-/// foo = bar;
-/// ");
-///
-/// let config = Config::from_string(input, None, &Vec::new()).expect("Failed to parse config");
-///
-/// assert_eq!("foo = 42;\n", config.to_string().unwrap());
-/// assert_eq!(b"\0raP", &config.to_cursor().unwrap().into_inner()[..4]);
-/// ```
+// Config
+//
+// # Examples
+//
+// ```
+// # use armake2::Config;
+// let input = String::from("
+// #define bar 42
+//
+// foo = bar;
+// ");
+//
+// let config = Config::from_string(input, None, &Vec::new()).expect("Failed to parse config");
+//
+// assert_eq!("foo = 42;\n", config.to_string().unwrap());
+// assert_eq!(b"\0raP", &config.to_cursor().unwrap().into_inner()[..4]);
+// ```
 #[derive(Debug)]
 pub struct Config {
     pub root_body: ConfigClass,

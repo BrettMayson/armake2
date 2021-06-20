@@ -319,7 +319,17 @@ where
     let mut original_lineno = 1;
     let mut level = 0;
     let mut level_true = 0;
-
+    
+    /*
+    let hasIncludeDef = Definition {
+        name: "__has_include".to_string(),
+        parameters: "var",
+        value: ,
+        local: false,
+    }
+    definition_map.insert("__has_include ", );
+    */
+        
     for line in lines {
         match line {
             Line::DirectiveLine(dir, newlines) => {
@@ -478,28 +488,28 @@ where
     Ok(output)
 }
 
-/// Reads input string and returns preprocessed string with an info struct containing the origins
-/// of the lines in the output.
-///
-/// `path` is the path to the input if it is known and is used for relative includes and error
-/// messages. `includefolders` are the folders searched for absolute includes and should usually at
-/// least include the current working directory.
-///
-/// # Examples
-///
-/// ```
-/// # use armake2::preprocess::preprocess;
-/// let input = String::from("
-/// #define QUOTE(x) #x
-/// #define DOUBLES(x,y) x##_##y
-///
-/// foo = QUOTE(DOUBLES(abc, xyz));
-/// ");
-///
-/// let (output, _) = preprocess(input, None, &Vec::new()).expect("Failed to preprocess");
-///
-/// assert_eq!("foo = \"abc_xyz\";", output.trim());
-/// ```
+// Reads input string and returns preprocessed string with an info struct containing the origins
+// of the lines in the output.
+//
+// `path` is the path to the input if it is known and is used for relative includes and error
+// messages. `includefolders` are the folders searched for absolute includes and should usually at
+// least include the current working directory.
+//
+// # Examples
+//
+// ```
+// # use armake2::preprocess::preprocess;
+// let input = String::from("
+// #define QUOTE(x) #x
+// #define DOUBLES(x,y) x##_##y
+//
+// foo = QUOTE(DOUBLES(abc, xyz));
+// ");
+//
+// let (output, _) = preprocess(input, None, &Vec::new()).expect("Failed to preprocess");
+//
+// assert_eq!("foo = \"abc_xyz\";", output.trim());
+// ```
 pub fn preprocess<F>(
     mut input: String,
     origin: Option<PathBuf>,

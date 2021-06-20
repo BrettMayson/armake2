@@ -1,4 +1,4 @@
-use std::io::{Cursor, Seek, SeekFrom};
+use std::{fs::File, io::{Cursor, Read, Seek, SeekFrom}};
 
 use armake2::Config;
 
@@ -26,7 +26,14 @@ class CfgPatches {
     );
     let mut cursor = Cursor::new(input);
 
-    let mut config = Config::read(&mut cursor, None, &Vec::new()).unwrap();
+    let mut config = Config::read(&mut cursor, None, &Vec::new(), |path| {
+        let mut content = String::new();
+        File::open(path)
+            .unwrap()
+            .read_to_string(&mut content)
+            .unwrap();
+        content
+    }).unwrap();
 
     let mut rapified = config.to_cursor().unwrap();
     rapified.seek(SeekFrom::Start(0)).unwrap();

@@ -27,10 +27,14 @@ pub fn matches_include_path(path: &PathBuf, include_path: &str) -> bool {
         if parent.is_file() {
             continue;
         }
+        
+        let mut prefixpath = parent.join("$PBOPREFIX$");
 
-        let prefixpath = parent.join("$PBOPREFIX$");
         if !prefixpath.is_file() {
-            continue;
+            prefixpath = parent.join("$PboPrefix$.txt");
+            if !prefixpath.is_file() {
+                continue;
+            }
         }
 
         let mut prefix = read_prefix(&prefixpath);
